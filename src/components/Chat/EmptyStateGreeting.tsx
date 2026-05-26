@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 
 export const EmptyStateGreeting: React.FC = () => {
   const [displayText, setDisplayText] = useState('');
@@ -72,20 +71,12 @@ export const EmptyStateGreeting: React.FC = () => {
   }, [displayText, phase]);
 
   return (
-    <motion.div
-      animate={{ y: [0, -8, 0] }}
-      transition={{
-        duration: 4.5,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-      className="flex flex-col items-center justify-center text-center select-none min-h-[4.5rem] mb-4"
-    >
-      <h1 className="text-4xl font-extrabold text-black tracking-tight flex items-center justify-center h-16">
+    <div className="flex flex-col items-center justify-center text-center select-none min-h-[4.5rem] mb-4">
+      <h1 className="text-4xl font-normal text-black tracking-tight flex items-center justify-center h-16">
         <span>{displayText}</span>
         <span className="w-[3px] h-[2.5rem] bg-black ml-1 animate-[pulse_0.8s_infinite]" />
       </h1>
-    </motion.div>
+    </div>
   );
 };
 
