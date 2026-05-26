@@ -2,7 +2,6 @@ import React from 'react';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import UploadModal from '@/components/Upload/UploadModal';
 import SettingsModal from '@/components/Settings/SettingsModal';
-import SearchDrawer from '@/components/Search/SearchDrawer';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -22,7 +21,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Global Overlays & Portals */}
       <UploadModal />
       <SettingsModal />
-      <SearchDrawer />
     </div>
   );
 };

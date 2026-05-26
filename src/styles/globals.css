@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --background: #F3F8FF;
+  --background: #FFFFFF;
   --surface: #FFFFFF;
-  --sidebar: #EAF2FF;
-  --border: #D2E3FC;
-  --accent: #3B82F6;
-  --accent-hover: #1D4ED8;
-  --text-primary: #1E293B;
-  --text-secondary: #576B8B;
+  --sidebar: #F4F7FC;
+  --border: #E2E8F0;
+  --accent: #3553E4;
+  --accent-hover: #223EC7;
+  --text-primary: #0D172C;
+  --text-secondary: #475569;
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(59, 130, 246, 0.12);
-  --scrollbar-thumb: rgba(59, 130, 246, 0.2);
-  --scrollbar-thumb-hover: rgba(59, 130, 246, 0.35);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(53, 83, 228, 0.1);
+  --scrollbar-thumb: rgba(53, 83, 228, 0.15);
+  --scrollbar-thumb-hover: rgba(53, 83, 228, 0.3);
 }
 
 .dark {

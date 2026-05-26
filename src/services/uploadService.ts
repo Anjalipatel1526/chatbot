@@ -1,4 +1,5 @@
 import api from './api';
+import { getSupabaseClient } from './supabase';
 
 export interface DocumentInfo {
   id: string;
@@ -12,67 +13,148 @@ export interface DocumentInfo {
 
 export const uploadService = {
   async uploadFile(file: File, onProgress?: (percent: number) => void): Promise<DocumentInfo> {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await api.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total && onProgress) {
-            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            onProgress(percent);
-          }
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.warn('Network file upload failed, using simulation for demo', error);
-      
-      // Simulate file upload progress
-      let progress = 0;
-      return new Promise<DocumentInfo>((resolve) => {
-        const interval = setInterval(() => {
-          progress += 20;
-          if (onProgress) onProgress(progress);
-          
-          if (progress >= 100) {
-            clearInterval(interval);
-            
-            // Randomly succeed or fail
-            const extension = file.name.split('.').pop()?.toLowerCase();
-            const docType = (['pdf', 'docx', 'txt', 'md', 'html'].includes(extension || '') 
-              ? extension 
-              : 'txt') as any;
+    const supabase = getSupabaseClient();
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const docType = (['pdf', 'docx', 'txt', 'md', 'html'].includes(extension || '') 
+      ? extension 
+      : 'txt') as any;
 
-            resolve({
-              id: Math.random().toString(36).substring(2, 9),
-              name: file.name,
-              size: file.size,
-              status: 'done',
-              progress: 100,
-              uploadedAt: new Date(),
-              type: docType,
-            });
-          }
-        }, 300);
-      });
+    if (supabase) {
+      try {
+        const fileId = Math.random().toString(36).substring(2, 9);
+        const filePath = `${fileId}_${file.name}`;
+        
+        // 1. Upload to Supabase Storage bucket 'documents'
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (uploadError) throw uploadError;
+
+        if (onProgress) onProgress(100);
+
+        // 2. Insert record in 'documents' table
+        const newDoc = {
+          id: fileId,
+          name: file.name,
+          size: file.size,
+          status: 'done' as const,
+          progress: 100,
+          uploadedAt: new Date(),
+          type: docType,
+        };
+
+        const { error: dbError } = await supabase
+          .from('documents')
+          .insert([{
+            id: fileId,
+            name: file.name,
+            size: file.size,
+            uploaded_at: newDoc.uploadedAt
+          }]);
+
+        if (dbError) throw dbError;
+
+        return newDoc;
+      } catch (error) {
+        console.error('Supabase upload failed, falling back to mock upload:', error);
+      }
     }
+
+    // --- FALLBACK / SIMULATION ---
+    console.warn('Supabase not configured, using simulation for demo');
+    let progress = 0;
+    return new Promise<DocumentInfo>((resolve) => {
+      const interval = setInterval(() => {
+        progress += 20;
+        if (onProgress) onProgress(progress);
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          resolve({
+            id: Math.random().toString(36).substring(2, 9),
+            name: file.name,
+            size: file.size,
+            status: 'done',
+            progress: 100,
+            uploadedAt: new Date(),
+            type: docType,
+          });
+        }
+      }, 300);
+    });
   },
 
   async getDocuments(): Promise<DocumentInfo[]> {
-    try {
-      const response = await api.get('/api/documents');
-      return response.data;
-    } catch (error) {
-      console.warn('Network call failed, using mock documents list', error);
-      return mockDocuments;
+    const supabase = getSupabaseClient();
+    
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*')
+          .order('uploaded_at', { ascending: false });
+
+        if (error) throw error;
+
+        return (data || []).map((row: any) => {
+          const extension = row.name.split('.').pop()?.toLowerCase();
+          const docType = (['pdf', 'docx', 'txt', 'md', 'html'].includes(extension || '') 
+            ? extension 
+            : 'txt') as any;
+
+          return {
+            id: row.id,
+            name: row.name,
+            size: row.size || 0,
+            status: 'done',
+            progress: 100,
+            uploadedAt: new Date(row.uploaded_at),
+            type: docType,
+          };
+        });
+      } catch (error) {
+        console.error('Supabase getDocuments failed, returning mock documents:', error);
+      }
     }
+
+    return mockDocuments;
   },
 
   async deleteDocument(id: string): Promise<void> {
+    const supabase = getSupabaseClient();
+
+    if (supabase) {
+      try {
+        // Fetch document metadata to find storage file path name
+        const { data, error: fetchError } = await supabase
+          .from('documents')
+          .select('name')
+          .eq('id', id)
+          .single();
+
+        if (!fetchError && data) {
+          const filePath = `${id}_${data.name}`;
+          // Delete from storage
+          await supabase.storage.from('documents').remove([filePath]);
+        }
+
+        // Delete from table
+        const { error: deleteError } = await supabase
+          .from('documents')
+          .delete()
+          .eq('id', id);
+
+        if (deleteError) throw deleteError;
+        return;
+      } catch (error) {
+        console.error('Supabase deleteDocument failed:', error);
+      }
+    }
+
     try {
       await api.delete(`/api/documents/${id}`);
     } catch (error) {

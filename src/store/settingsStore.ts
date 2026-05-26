@@ -10,6 +10,8 @@ interface SettingsStore {
   baseUrl: string;
   temperature: number;
   theme: Theme;
+  supabaseUrl: string;
+  supabaseAnonKey: string;
   setProvider: (provider: AIProvider) => void;
   setSetting: (key: string, value: any) => void;
 }
@@ -29,6 +31,8 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
   baseUrl: localStorage.getItem('baseUrl') || 'https://api.openai.com/v1',
   temperature: Number(localStorage.getItem('temperature')) || 0.7,
   theme: getInitialTheme(),
+  supabaseUrl: localStorage.getItem('supabaseUrl') || '',
+  supabaseAnonKey: localStorage.getItem('supabaseAnonKey') || '',
 
   setProvider: (provider) => {
     localStorage.setItem('aiProvider', provider);

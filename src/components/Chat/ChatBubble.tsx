@@ -8,8 +8,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   RotateCcw,
-  Bot,
-  User,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
@@ -52,13 +50,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
       transition={{ duration: 0.15 }}
       className={`group flex gap-3 my-4 w-full ${isUser ? 'justify-end' : 'justify-start'}`}
     >
-      {/* Icon Avatar */}
-      {!isUser && (
-        <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-1 select-none">
-          <Bot size={16} className="text-accent" />
-        </div>
-      )}
-
       {/* Bubble Container */}
       <div className={`flex flex-col gap-1 max-w-[85%] sm:max-w-[75%]`}>
         {/* Main Card */}
@@ -85,14 +76,20 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
                     code({ node, inline, className, children, ...props }: any) {
                       const match = /language-(\w+)/.exec(className || '');
                       const lang = match ? match[1] : '';
-                      const codeValue = String(children).replace(/\n$/, '');
-
-                      if (!inline && match) {
-                        return <CodeBlock code={codeValue} language={lang} />;
+                      const getRawText = (child: any): string => {
+                        if (typeof child === 'string') return child;
+                        if (Array.isArray(child)) return child.map(getRawText).join('');
+                        if (child?.props?.children) return getRawText(child.props.children);
+                        return '';
+                      };
+                      const codeValue = getRawText(children).replace(/\n$/, '');
+                      const isBlock = !inline && (!!match || codeValue.includes('\n'));
+                      if (isBlock) {
+                        return <CodeBlock code={codeValue} language={lang || 'text'} />;
                       }
                       return (
-                        <code className="bg-black/35 px-1.5 py-0.5 rounded font-mono text-xs text-accent" {...props}>
-                          {children}
+                        <code className="bg-black/20 px-1.5 py-0.5 rounded font-mono text-xs text-accent border border-border/40" {...props}>
+                          {codeValue}
                         </code>
                       );
                     },
@@ -210,13 +207,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
           </div>
         )}
       </div>
-
-      {/* User Avatar */}
-      {isUser && (
-        <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center flex-shrink-0 mt-1 select-none text-white font-semibold text-xs">
-          <User size={16} />
-        </div>
-      )}
     </motion.div>
   );
 };

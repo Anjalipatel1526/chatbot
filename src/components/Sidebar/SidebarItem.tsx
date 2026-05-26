@@ -29,8 +29,8 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
       onClick={onSelect}
       className={`group relative flex items-center justify-between cursor-pointer py-3 transition-all duration-150 border-l-2 ${
         isActive
-          ? 'bg-white/5 border-accent text-textPrimary animate-pulse-glow'
-          : 'border-transparent text-textSecondary hover:bg-white/5 hover:text-textPrimary hover:border-accent-hover'
+          ? 'bg-black/5 dark:bg-white/5 border-accent text-textPrimary'
+          : 'border-transparent text-textSecondary hover:bg-black/5 dark:hover:bg-white/5 hover:text-textPrimary hover:border-accent-hover'
       } ${sidebarOpen ? 'px-4 gap-3' : 'px-0 justify-center'}`}
     >
       {/* Icon and Title */}

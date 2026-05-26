@@ -1,16 +1,15 @@
 import api from './api';
 import type { Message, SourceChunk } from '@/types';
-import { useSettingsStore } from '@/store/settingsStore';
-
+import { buildRAGPrompt } from './ragService';
 
 export const chatService = {
   async sendMessage(prompt: string, sessionId: string): Promise<{ content: string; sources?: SourceChunk[] }> {
     try {
+      // Send directly to backend which handles RAG search
       const response = await api.post('/api/chat', { prompt, sessionId });
       return response.data;
     } catch (error) {
       console.warn('Network call failed, using mock response for demo', error);
-      // Fallback/Mock Response for demonstration
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return {
         content: `This is a mockup response to your query: "${prompt}". In a real deployment, this connects to the RAG endpoint.`,
@@ -46,18 +45,41 @@ export const chatService = {
     onError: (err: Error) => void,
     signal?: AbortSignal
   ): Promise<void> {
-    const { baseUrl, aiProvider } = useSettingsStore.getState();
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     
     try {
-      // Build request body
-      const url = `${baseUrl.replace(/\/$/, '')}/api/chat/stream`;
+      // 1. Get context and sources from backend
+      const contextResponse = await fetch(`${BACKEND_URL.replace(/\/$/, '')}/api/chat/context`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt, sessionId }),
+        signal,
+      });
+
+      if (!contextResponse.ok) {
+        throw new Error('Failed to fetch RAG context from backend');
+      }
+
+      const { sources } = await contextResponse.json();
+
+      // Render actual sources in the UI
+      onSources(sources || []);
+
+      // 2. Extract contextChunks and build context-enriched prompt
+      const contextChunks = (sources || []).map((s: any) => s.content);
+      const ragPrompt = buildRAGPrompt(prompt, contextChunks);
+
+      // 3. Connect to streaming SSE backend
+      const url = `${BACKEND_URL.replace(/\/$/, '')}/api/chat/stream`;
       
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt, sessionId, provider: aiProvider }),
+        body: JSON.stringify({ prompt: ragPrompt, sessionId }),
         signal,
       });
 
@@ -72,15 +94,12 @@ export const chatService = {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedText = '';
-      
-      onSources(mockSources); // Mock sources initially for demo if backend hasn't returned them
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value);
-        // Assuming Server-Sent Events (SSE) standard format: data: {...}
         const lines = chunk.split('\n');
         for (const line of lines) {
           if (line.trim().startsWith('data:')) {
@@ -95,11 +114,8 @@ export const chatService = {
                 accumulatedText += parsed.token;
                 onToken(parsed.token);
               }
-              if (parsed.sources) {
-                onSources(parsed.sources);
-              }
             } catch (e) {
-              // Just append raw text if parsing fails
+              // Fallback to raw token if JSON format differs
               accumulatedText += jsonStr;
               onToken(jsonStr);
             }

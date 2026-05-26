@@ -4,17 +4,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Settings,
-  Upload,
-  Search,
-  Bot,
-  Sun,
-  Moon,
-  Laptop
+  Settings
 } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useChatStore } from '@/store/chatStore';
-import { useSettingsStore } from '@/store/settingsStore';
 import ChatList from './ChatList';
 import Tooltip from '../shared/Tooltip';
 
@@ -22,29 +15,10 @@ export const Sidebar: React.FC = () => {
   const {
     sidebarOpen,
     toggleSidebar,
-    openSettings,
-    openUpload,
-    openSearch
+    openSettings
   } = useUIStore();
   
   const createSession = useChatStore((state) => state.createSession);
-  const { theme, setSetting } = useSettingsStore();
-
-  const handleToggleTheme = () => {
-    if (theme === 'dark') {
-      setSetting('theme', 'light');
-    } else if (theme === 'light') {
-      setSetting('theme', 'system');
-    } else {
-      setSetting('theme', 'dark');
-    }
-  };
-
-  const getThemeIcon = () => {
-    if (theme === 'dark') return <Moon size={18} />;
-    if (theme === 'light') return <Sun size={18} />;
-    return <Laptop size={18} />;
-  };
 
   const sidebarVariants = {
     expanded: { width: 260 },
@@ -62,16 +36,15 @@ export const Sidebar: React.FC = () => {
       {/* Top Header Logo + Toggle */}
       <div className="flex items-center justify-between h-14 border-b border-border px-4 flex-shrink-0">
         <div className="flex items-center gap-2 overflow-hidden min-w-0">
-          <Bot size={24} className="text-accent flex-shrink-0" />
           {sidebarOpen && (
-            <span className="font-bold text-sm bg-gradient-to-r from-accent to-blue-400 bg-clip-text text-transparent truncate select-none">
+            <span className="font-bold text-sm bg-gradient-to-r from-accent to-blue-400 bg-clip-text text-transparent truncate select-none pl-1">
               Unai Chatbox
             </span>
           )}
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-1 rounded hover:bg-white/5 text-textSecondary hover:text-textPrimary transition-colors"
+          className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 text-textSecondary hover:text-textPrimary transition-colors"
         >
           {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
@@ -111,61 +84,12 @@ export const Sidebar: React.FC = () => {
 
       {/* Bottom Nav Icons */}
       <div className={`p-3 flex-shrink-0 flex flex-col gap-2 ${sidebarOpen ? '' : 'items-center'}`}>
-        {/* Search */}
-        {sidebarOpen ? (
-          <button
-            onClick={() => openSearch(true)}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-textSecondary hover:text-textPrimary hover:bg-white/5 rounded-lg transition-colors"
-          >
-            <Search size={18} />
-            <span>Semantic Search</span>
-          </button>
-        ) : (
-          <Tooltip content="Semantic Search" position="right">
-            <button
-              onClick={() => openSearch(true)}
-              className="w-10 h-10 flex items-center justify-center text-textSecondary hover:text-textPrimary hover:bg-white/5 rounded-lg transition-colors"
-            >
-              <Search size={18} />
-            </button>
-          </Tooltip>
-        )}
-
-        {/* Upload documents */}
-        {sidebarOpen ? (
-          <button
-            onClick={() => openUpload(true)}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-textSecondary hover:text-textPrimary hover:bg-white/5 rounded-lg transition-colors"
-          >
-            <Upload size={18} />
-            <span>Upload Documents</span>
-          </button>
-        ) : (
-          <Tooltip content="Upload Documents" position="right">
-            <button
-              onClick={() => openUpload(true)}
-              className="w-10 h-10 flex items-center justify-center text-textSecondary hover:text-textPrimary hover:bg-white/5 rounded-lg transition-colors"
-            >
-              <Upload size={18} />
-            </button>
-          </Tooltip>
-        )}
-
-        {/* Theme and Settings */}
-        <div className={`flex ${sidebarOpen ? 'justify-between items-center' : 'flex-col gap-2'} w-full border-t border-border/40 pt-2 mt-1`}>
-          <Tooltip content={`Theme: ${theme}`} position="right">
-            <button
-              onClick={handleToggleTheme}
-              className="w-10 h-10 flex items-center justify-center text-textSecondary hover:text-textPrimary hover:bg-white/5 rounded-lg transition-colors"
-            >
-              {getThemeIcon()}
-            </button>
-          </Tooltip>
-
+        {/* Settings Only */}
+        <div className={`flex flex-col gap-2 w-full ${sidebarOpen ? '' : 'items-center'}`}>
           {sidebarOpen ? (
             <button
               onClick={() => openSettings(true)}
-              className="flex items-center gap-2 text-textSecondary hover:text-textPrimary hover:bg-white/5 p-2 rounded-lg transition-colors text-sm"
+              className="flex items-center gap-3 px-3 py-2 text-textSecondary hover:text-textPrimary hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors text-sm"
             >
               <Settings size={18} />
               <span>Settings</span>
@@ -174,7 +98,7 @@ export const Sidebar: React.FC = () => {
             <Tooltip content="Settings" position="right">
               <button
                 onClick={() => openSettings(true)}
-                className="w-10 h-10 flex items-center justify-center text-textSecondary hover:text-textPrimary hover:bg-white/5 rounded-lg transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-textSecondary hover:text-textPrimary hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
               >
                 <Settings size={18} />
               </button>
@@ -185,4 +109,5 @@ export const Sidebar: React.FC = () => {
     </motion.div>
   );
 };
+
 export default Sidebar;

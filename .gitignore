@@ -22,3 +22,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build outputs
+release/
+dist/
+
+# Environments & secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python caching
+__pycache__/
+*.pyc

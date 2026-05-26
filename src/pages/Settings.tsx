@@ -3,10 +3,12 @@ import AIProviderSelector from '@/components/Settings/AIProviderSelector';
 import ThemeSwitcher from '@/components/Settings/ThemeSwitcher';
 import { Cpu, Palette, Database } from 'lucide-react';
 import { useChatStore } from '@/store/chatStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { Button } from '@/components/shared/Button';
 
 export const SettingsPage: React.FC = () => {
   const { setSessions, setMessages } = useChatStore();
+  const { supabaseUrl, supabaseAnonKey, setSetting } = useSettingsStore();
 
   const handleClearConversations = () => {
     if (confirm('Are you sure you want to delete all conversations?')) {
@@ -71,6 +73,36 @@ export const SettingsPage: React.FC = () => {
                   <Button variant="danger" size="sm" onClick={handleClearVectorDb}>
                     Purge
                   </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Supabase Connection */}
+            <div className="border border-border bg-surface rounded-xl p-5 glass">
+              <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 border-b border-border/40 pb-2">
+                <Database size={16} className="text-accent" />
+                <span>Supabase Database Connection</span>
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-textSecondary font-semibold">Supabase Project URL</label>
+                  <input
+                    type="text"
+                    value={supabaseUrl}
+                    onChange={(e) => setSetting('supabaseUrl', e.target.value)}
+                    placeholder="https://your-project.supabase.co"
+                    className="w-full text-xs bg-black/10 border border-border/60 rounded px-2.5 py-2 text-textPrimary placeholder-textSecondary/40 focus:outline-none focus:border-accent"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-textSecondary font-semibold">Supabase Anonymous Key</label>
+                  <input
+                    type="password"
+                    value={supabaseAnonKey}
+                    onChange={(e) => setSetting('supabaseAnonKey', e.target.value)}
+                    placeholder="your-anon-key-here"
+                    className="w-full text-xs bg-black/10 border border-border/60 rounded px-2.5 py-2 text-textPrimary placeholder-textSecondary/40 focus:outline-none focus:border-accent"
+                  />
                 </div>
               </div>
             </div>

@@ -4,15 +4,17 @@ import { useSettingsStore } from '@/store/settingsStore';
 // Create an axios instance
 const api = axios.create();
 
+// FastAPI backend base URL (set in .env as VITE_API_BASE_URL)
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 // Interceptor to dynamically set URL and headers on each request
 api.interceptors.request.use(
   (config) => {
-    const { baseUrl, apiKey, aiProvider } = useSettingsStore.getState();
-    
-    // Set base URL from state if not already set as fully absolute path
+    const { apiKey, aiProvider } = useSettingsStore.getState();
+
+    // Set base URL to FastAPI backend for all relative paths
     if (config.url && !config.url.startsWith('http')) {
-      // Remove trailing slash from baseUrl and leading slash from config.url
-      const cleanBase = baseUrl.replace(/\/$/, '');
+      const cleanBase = BACKEND_URL.replace(/\/$/, '');
       const cleanUrl = config.url.replace(/^\//, '');
       config.url = `${cleanBase}/${cleanUrl}`;
     }

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Trash2, Download, Plus, MessageSquare } from 'lucide-react';
+import { Trash2, Plus, MessageSquare } from 'lucide-react';
 import { useChat } from '@/hooks/useChat';
 import ChatBubble from './ChatBubble';
 import TypingIndicator from './TypingIndicator';
@@ -29,21 +29,6 @@ export const ChatWindow: React.FC = () => {
     scrollToBottom('smooth');
   }, [messages, isStreaming]);
 
-  // Handle export chat to JSON file
-  const handleExportChat = () => {
-    if (messages.length === 0) return;
-    const jsonStr = JSON.stringify(messages, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chat_export_${activeSessionId || 'session'}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   // Determine if AI is thinking (waiting for first token)
   const isAwaitingFirstToken =
     isStreaming &&
@@ -66,14 +51,6 @@ export const ChatWindow: React.FC = () => {
         
         {activeSessionId && (
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleExportChat}
-              disabled={messages.length === 0}
-              className="p-2 rounded-lg text-textSecondary hover:text-textPrimary hover:bg-white/5 disabled:opacity-30 transition-colors"
-              title="Export Conversation"
-            >
-              <Download size={16} />
-            </button>
             <button
               onClick={clearSession}
               disabled={messages.length === 0}
@@ -130,7 +107,7 @@ export const ChatWindow: React.FC = () => {
           </div>
 
           {/* Bottom Pinned Input Area (only when messages exist) */}
-          <div className="flex-shrink-0 z-10 bg-gradient-to-t from-background via-background to-background/0">
+          <div className="flex-shrink-0 z-10 bg-gradient-to-t from-background via-background to-background/0 flex justify-center w-full">
             <ChatInput
               onSend={sendMessage}
               isStreaming={isStreaming}
