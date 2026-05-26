@@ -4,6 +4,7 @@ import { useChat } from '@/hooks/useChat';
 import ChatBubble from './ChatBubble';
 import TypingIndicator from './TypingIndicator';
 import ChatInput from '../Input/ChatInput';
+import EmptyStateGreeting from './EmptyStateGreeting';
 
 export const ChatWindow: React.FC = () => {
   const {
@@ -71,8 +72,9 @@ export const ChatWindow: React.FC = () => {
       </div>
 
       {isEmpty ? (
-        /* Empty state — just a centered search input */
-        <div className="flex-1 flex flex-col items-center justify-center px-6">
+        /* Empty state — animated greeting and centered search input */
+        <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
+          <EmptyStateGreeting />
           <ChatInput
             onSend={sendMessage}
             isStreaming={isStreaming}
