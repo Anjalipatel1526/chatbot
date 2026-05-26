@@ -1,92 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 
 export const EmptyStateGreeting: React.FC = () => {
-  const [showSecond, setShowSecond] = useState(false);
-
+  const [displayText, setDisplayText] = useState('');
+  const [phase, setPhase] = useState<'typing1' | 'waiting1' | 'erasing1' | 'waiting2' | 'typing2' | 'done'>('typing1');
+  
+  const text1 = "Hello, welcome to Unai";
+  const text2 = "Ask anything to Unai";
+  
   useEffect(() => {
-    // Delay before the second sentence starts typing
-    const timer = setTimeout(() => {
-      setShowSecond(true);
-    }, 1800);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const firstSentence = "hello,welcome to Unai";
-  const secondSentence = "Ask anything to unai";
-
-  // Typing container variants
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.04,
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (phase === 'typing1') {
+      if (displayText.length < text1.length) {
+        timer = setTimeout(() => {
+          setDisplayText(text1.slice(0, displayText.length + 1));
+        }, 75); // Typing speed
+      } else {
+        setPhase('waiting1');
+      }
+    } 
+    else if (phase === 'waiting1') {
+      timer = setTimeout(() => {
+        setPhase('erasing1');
+      }, 1800); // Delay before erasing
+    } 
+    else if (phase === 'erasing1') {
+      if (displayText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayText(displayText.slice(0, -1));
+        }, 35); // Erasing speed (faster)
+      } else {
+        setPhase('waiting2');
+      }
+    } 
+    else if (phase === 'waiting2') {
+      timer = setTimeout(() => {
+        setPhase('typing2');
+      }, 400); // Short delay before second sentence
+    } 
+    else if (phase === 'typing2') {
+      if (displayText.length < text2.length) {
+        timer = setTimeout(() => {
+          setDisplayText(text2.slice(0, displayText.length + 1));
+        }, 75);
+      } else {
+        setPhase('done');
       }
     }
-  } as const;
 
-  // Letter variants
-  const letterVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { type: 'spring' as const, damping: 15, stiffness: 150 }
-    }
-  } as const;
+    return () => clearTimeout(timer);
+  }, [displayText, phase]);
 
   return (
-    <motion.div
-      animate={{ y: [0, -6, 0] }}
-      transition={{
-        duration: 5,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-      className="flex flex-col items-center text-center select-none gap-2.5 mb-2"
-    >
-      {/* First Sentence */}
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-textPrimary via-accent to-blue-500 bg-clip-text text-transparent px-4"
-        style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
-      >
-        {firstSentence.split(" ").map((word, wordIdx) => (
-          <span key={wordIdx} className="mr-2 flex">
-            {word.split("").map((char, charIdx) => (
-              <motion.span key={charIdx} variants={letterVariants}>
-                {char}
-              </motion.span>
-            ))}
-          </span>
-        ))}
-      </motion.div>
-
-      {/* Second Sentence */}
-      <div className="h-8">
-        {showSecond && (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-base text-textSecondary/80 font-medium tracking-wide px-4"
-            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
-          >
-            {secondSentence.split(" ").map((word, wordIdx) => (
-              <span key={wordIdx} className="mr-1.5 flex">
-                {word.split("").map((char, charIdx) => (
-                  <motion.span key={charIdx} variants={letterVariants}>
-                    {char}
-                  </motion.span>
-                ))}
-              </span>
-            ))}
-          </motion.div>
+    <div className="flex flex-col items-center justify-center text-center select-none min-h-[4.5rem] mb-4">
+      <h1 className="text-4xl font-extrabold text-black tracking-tight flex items-center justify-center h-16">
+        <span>{displayText}</span>
+        {phase !== 'done' && (
+          <span className="w-[3px] h-[2.5rem] bg-black ml-1 animate-[pulse_0.8s_infinite]" />
         )}
-      </div>
-    </motion.div>
+      </h1>
+    </div>
   );
 };
 
