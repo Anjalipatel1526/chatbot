@@ -93,6 +93,37 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
                         </code>
                       );
                     },
+                    a({ href, children, ...props }: any) {
+                      const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                        const isElectron = typeof window !== 'undefined' && 
+                          (window as any).process && 
+                          (window as any).process.versions && 
+                          (window as any).process.versions.electron;
+                        
+                        if (isElectron && href) {
+                          e.preventDefault();
+                          try {
+                            const { shell } = (window as any).require('electron');
+                            shell.openExternal(href);
+                          } catch (err) {
+                            console.error('Failed to open link with window.require:', err);
+                            window.open(href, '_blank');
+                          }
+                        }
+                      };
+                      return (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={handleClick}
+                          className="text-accent hover:underline font-semibold"
+                          {...props}
+                        >
+                          {children}
+                        </a>
+                      );
+                    },
                     p({ children }) {
                       return <p className="mb-2 last:mb-0">{children}</p>;
                     },
