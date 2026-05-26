@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F3F8FF;
+  --surface: #FFFFFF;
+  --sidebar: #EAF2FF;
+  --border: #D2E3FC;
+  --accent: #3B82F6;
+  --accent-hover: #1D4ED8;
+  --text-primary: #1E293B;
+  --text-secondary: #576B8B;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(59, 130, 246, 0.12);
+  --scrollbar-thumb: rgba(59, 130, 246, 0.2);
+  --scrollbar-thumb-hover: rgba(59, 130, 246, 0.35);
+}
+
+.dark {
+  --background: #0F172A;
+  --surface: #111827;
+  --sidebar: #0D1117;
+  --border: #1F2937;
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-textPrimary font-sans antialiased overflow-hidden h-screen w-screen;
+  }
+}
+
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+/* Custom Scrollbar for sleek UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Hide scrollbar for layout containers while maintaining scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

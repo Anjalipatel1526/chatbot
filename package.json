@@ -1,0 +1,94 @@
+{
+  "name": "docmind-rag",
+  "productName": "Unai Chatbox",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Premium AI RAG Documentation Chatbot Desktop Application",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "author": {
+    "name": "DocMind"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"vite --port 3000\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:linux": "npm run build && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.docmind.rag",
+    "productName": "Unai Chatbox",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon.png",
+      "category": "Utility"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon.png"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "public/icon.png"
+    }
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "framer-motion": "^12.40.0",
+    "lucide-react": "^1.16.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.15.1",
+    "rehype-highlight": "^7.0.2",
+    "zustand": "^5.0.13"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.12.3",
+    "@types/react": "^18.3.29",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.5.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12",
+    "wait-on": "^9.0.10"
+  }
+}
+
