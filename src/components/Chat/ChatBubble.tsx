@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import {
@@ -7,12 +7,9 @@ import {
   Check,
   ThumbsUp,
   ThumbsDown,
-  RotateCcw,
-  ChevronDown,
-  ChevronUp
+  RotateCcw
 } from 'lucide-react';
 import type { Message } from '@/types';
-import SourceCard from './SourceCard';
 import StreamingText from './StreamingText';
 
 interface ChatBubbleProps {
@@ -24,7 +21,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
-  const [sourcesExpanded, setSourcesExpanded] = useState(false);
 
   const handleCopyText = async () => {
     try {
@@ -173,7 +169,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
         {!isUser && !message.isStreaming && (
           <div className="flex flex-col gap-2 mt-1">
             {/* Action Bar */}
-            <div className="flex items-center justify-between px-1 text-textSecondary select-none">
+            <div className="flex items-center px-1 text-textSecondary select-none">
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleCopyText}
@@ -206,35 +202,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRegenerate })
                   <ThumbsDown size={14} />
                 </button>
               </div>
-
-              {/* Source count indicator */}
-              {message.sources && message.sources.length > 0 && (
-                <button
-                  onClick={() => setSourcesExpanded(!sourcesExpanded)}
-                  className="flex items-center gap-1 text-xs hover:text-textPrimary transition-colors"
-                >
-                  <span>{message.sources.length} sources</span>
-                  {sourcesExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                </button>
-              )}
             </div>
-
-            {/* Sources Cards Grid */}
-            <AnimatePresence>
-              {sourcesExpanded && message.sources && message.sources.length > 0 && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex flex-col gap-2 overflow-hidden mt-1 pl-1"
-                >
-                  {message.sources.map((source) => (
-                    <SourceCard key={source.id} source={source} />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         )}
       </div>
